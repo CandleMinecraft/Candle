@@ -17,6 +17,7 @@
         <module>modules/installer</module>
         <module>modules/protocol/base</module>
         <module>modules/protocol/769</module>
+        <module>modules/base/event</module>
     </modules>
 
     <properties>
