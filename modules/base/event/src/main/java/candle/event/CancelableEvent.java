@@ -3,7 +3,7 @@ package candle.event;
 public class CancelableEvent<S> extends Event<S> {
   private boolean canceled = false;
 
-  protected CancelableEvent( S source ) {
+  public CancelableEvent(S source) {
     super(source);
   }
 
