@@ -1,0 +1,46 @@
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>net.candlemc.candle</groupId>
+    <artifactId>Candle</artifactId>
+    <version>0.1.0</version>
+    <packaging>pom</packaging>
+
+    <name>Candle</name>
+    <description>A flexible, secure, and high-performance Minecraft server software</description>
+    <url>http://maven.apache.org</url>
+
+    <modules>
+        <module>modules/server</module>
+        <module>modules/installer</module>
+        <module>modules/protocol/base</module>
+        <module>modules/protocol/769</module>
+    </modules>
+
+    <properties>
+        <java.version>23</java.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>net.candlemc.candle</groupId>
+                <artifactId>protocol-base</artifactId>
+                <version>0.1.0</version>
+            </dependency>
+            <dependency>
+                <groupId>net.candlemc.candle</groupId>
+                <artifactId>server</artifactId>
+                <version>0.1.0</version>
+            </dependency>
+            <dependency>
+                <groupId>net.candlemc.candle</groupId>
+                <artifactId>installer</artifactId>
+                <version>0.1.0</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+</project>
