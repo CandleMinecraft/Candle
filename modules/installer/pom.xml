@@ -15,7 +15,7 @@
     <dependencies>
         <dependency>
             <groupId>net.candlemc.candle</groupId>
-            <artifactId>server</artifactId>
+            <artifactId>candle-server</artifactId>
             <version>0.1.0</version>
         </dependency>
     </dependencies>
