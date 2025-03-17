@@ -47,11 +47,6 @@ public class Logger {
     this.showLineNumber = showLineNumber;
   }
 
-  public Logger() {
-    logDirectory = initializeLogDirectory();
-    currentLogDate = getCurrentDate();
-  }
-
   // Public API
   public void info(String message) { log(message, LogLevel.INFO); }
   public void warn(String message) { log(message, LogLevel.WARN); }
