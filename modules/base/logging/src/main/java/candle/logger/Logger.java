@@ -1,10 +1,10 @@
 package candle.logger;
 
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -13,61 +13,67 @@ import java.time.format.DateTimeFormatter;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * High-performance thread-safe logging utility with console coloring.
- * Thread-safe: Unknown
- * Features:
- * - Daily log file rotation (filename determined at initialization)
- * - ANSI-colored console output
- * - Microsecond-level precision
- * - Lock-based synchronization
- * - Efficient stack trace analysis
+ * High-performance thread-safe logging utility with daily file rotation and ANSI colors.
+ * Features microsecond precision, efficient stack trace analysis, and lock-based synchronization.
  */
-public final class Logger {
-  // Immutable formatters and constants
+public class Logger {
+  // Immutable configuration
   private static final DateTimeFormatter TIME_FMT = DateTimeFormatter.ofPattern("HH:mm:ss.SSS");
   private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("dd.MM.yyyy");
   private static final ZoneId ZONE = ZoneId.systemDefault();
-  private static final String[] COLORS = {
-          "\u001B[34m",  // INFO (blue)
-          "\u001B[33m",  // WARN (yellow)
-          "\u001B[31m",  // ERROR (red)
-          "\u001B[31;1m" // FATAL (bold red)
-  };
-  private static final String RESET = "\u001B[0m";
   private static final String LOG_DIRECTORY = "logs";
+  private static final int CALLER_STACK_DEPTH = 4; // [0]=getStackTrace [1]=getCallerInfo [2]=log [3]=public method
 
-  // Thread-safe components
+  // Thread-safe state
   private final ReentrantLock lock = new ReentrantLock();
-  private final String filePath;
+  private volatile String currentLogDate;
+  private final Path logDirectory;
 
-  public Logger() {
-    this.filePath = initializeLogDirectory() + File.separator + getCurrentDate() + ".log";
+  // Configuration flags
+  private boolean showDate = false;
+  private boolean showTime = true;
+  private boolean showLogLevel = true;
+  private boolean showClassName = true;
+  private boolean showLineNumber = true;
+
+  public Logger( boolean showDate, boolean showTime, boolean showLogLevel,
+                 boolean showClassName, boolean showLineNumber ) {
+    this.logDirectory = initializeLogDirectory();
+    this.currentLogDate = getCurrentDate();
+    this.showDate = showDate;
+    this.showTime = showTime;
+    this.showLogLevel = showLogLevel;
+    this.showClassName = showClassName;
+    this.showLineNumber = showLineNumber;
   }
 
-  // Public logging API
-  public void info(String message) { log(message, 0); }
-  public void warn(String message) { log(message, 1); }
-  public void error(String message) { log(message, 2); }
-  public void fatal(String message) { log(message, 3); }
+  public Logger() {
+    logDirectory = initializeLogDirectory();
+    currentLogDate = getCurrentDate();
+  }
+
+  // Public API
+  public void info(String message) { log(message, LogLevel.INFO); }
+  public void warn(String message) { log(message, LogLevel.WARN); }
+  public void error(String message) { log(message, LogLevel.ERROR); }
+  public void fatal(String message) { log(message, LogLevel.FATAL); }
 
   /**
-   * Core logging mechanism with thread synchronization.
-   * @param message Log message content
-   * @param levelIndex Numeric log level (0=INFO, 1=WARN, 2=ERROR, 3=FATAL)
+   * Core logging method with thread synchronization and daily file rotation.
    */
-  private void log(String message, int levelIndex) {
+  private void log(String message, LogLevel level) {
     final long timestamp = System.currentTimeMillis();
-    final StackTraceElement caller = getCallerInfo();
+    final String currentDate = getCurrentDate();
     final String formattedTime = formatTimestamp(timestamp);
-    final String logLevel = resolveLogLevel(levelIndex);
-
-    String logEntry = buildLogEntry(formattedTime, logLevel, caller, message);
-    String coloredEntry = colorizeLogEntry(logEntry, levelIndex);
 
     lock.lock();
     try {
-      writeToConsole(coloredEntry);
-      appendToLogFile(logEntry);
+      checkDateChange(currentDate);
+      StackTraceElement caller = getCallerInfo();
+      String logEntry = buildLogEntry(formattedTime, level.getColoredLevel(), caller, message);
+
+      writeToConsole(logEntry);
+      appendToFile(logEntry.replaceAll("\u001B\\[[0-9;]*[a-zA-Z]", ""), currentDate);
     } catch (IOException e) {
       handleWriteError(e);
     } finally {
@@ -76,107 +82,102 @@ public final class Logger {
   }
 
   /**
-   * Initializes log directory and returns full path.
-   * Shows error message on filesystem failure.
+   * Initializes log directory with error handling.
    */
-  private String initializeLogDirectory() {
-    String dirPath = System.getProperty("user.dir") + File.separator + LOG_DIRECTORY;
-    File directory = new File(dirPath);
-    if (!directory.exists() && !directory.mkdirs()) {
-      System.err.println("Failed to create log directory at: " + dirPath);
+  private Path initializeLogDirectory() {
+    Path dir = Path.of(System.getProperty("user.dir"), LOG_DIRECTORY);
+    try {
+      return Files.createDirectories(dir);
+    } catch (IOException e) {
+      System.err.println("Failed to create log directory: " + e.getMessage());
+      return dir; // Continue with potentially invalid path
     }
-    return dirPath;
   }
 
   /**
-   * Gets current date string for file rotation.
-   * Uses system timezone and predefined date format.
+   * Checks if log file needs rotation due to date change.
    */
-  private String getCurrentDate() {
-    return LocalDateTime.now(ZONE).format(DATE_FMT);
+  private void checkDateChange(String currentDate) {
+    if (!currentDate.equals(currentLogDate)) {
+      currentLogDate = currentDate;
+    }
   }
 
   /**
-   * Formats timestamp with milliseconds precision.
-   * Converts using system timezone settings.
-   */
-  private String formatTimestamp(long epochMillis) {
-    return TIME_FMT.format(LocalDateTime.ofInstant(
-            Instant.ofEpochMilli(epochMillis), ZONE
-                                                  ));
-  }
-
-  /**
-   * Gets calling class information from stack trace.
-   * Assumes 3-level call depth (public API method -> log() -> this method).
+   * Gets caller information from pre-determined stack depth.
    */
   private StackTraceElement getCallerInfo() {
-    return Thread.currentThread().getStackTrace()[4]; // [0]=getStackTrace, [1]=getCallerInfo, [2]=log, [3]=public API method
+    return Thread.currentThread().getStackTrace()[CALLER_STACK_DEPTH];
   }
 
   /**
-   * Converts numeric level index to human-readable string.
+   * Constructs log entry with configured elements.
    */
-  private String resolveLogLevel(int levelIndex) {
-    return switch (levelIndex) {
-      case 0 -> "INFO";
-      case 1 -> "WARN";
-      case 2 -> "ERROR";
-      case 3 -> "FATAL";
-      default -> throw new IllegalArgumentException("Invalid log level index");
-    };
-  }
-
-  /**
-   * Constructs standardized log entry structure.
-   */
-  private String buildLogEntry(String time, String level,
+  private String buildLogEntry(String time, String coloredLevel,
                                StackTraceElement caller, String message) {
-    return String.format("%s [%s] - %s:%d - %s",
-                         time,
-                         level,
-                         caller.getClassName(),
-                         caller.getLineNumber(),
-                         message
-                        );
+    StringBuilder sb = new StringBuilder(64);
+
+    // Date/time block
+    if (showDate || showTime) {
+      sb.append('[');
+      if (showDate) sb.append(currentLogDate);
+      if (showDate && showTime) sb.append(" ");
+      if (showTime) sb.append(time);
+      sb.append("] ");
+    }
+
+    // Log level
+    if (showLogLevel) sb.append(coloredLevel).append(" - ");
+
+    // Class/line information
+    if (showClassName || showLineNumber) {
+      if (showClassName) sb.append(caller.getClassName());
+      if (showLineNumber) {
+        if (showClassName) sb.append(':');
+        sb.append(caller.getLineNumber());
+      }
+      sb.append(" - ");
+    }
+
+    // Message
+    return sb.append(message).toString();
   }
 
   /**
-   * Applies ANSI coloring to log level marker.
+   * Writes to console with ANSI colors.
    */
-  private String colorizeLogEntry(String entry, int levelIndex) {
-    return entry.replaceFirst("\\[([A-Z]+)]",
-                              COLORS[levelIndex] + "[$1]" + RESET);
+  private void writeToConsole(String entry) {
+    System.out.println(entry);
   }
 
   /**
-   * Writes colored message to system console.
+   * Appends to log file with atomic create/append operations.
    */
-  private void writeToConsole(String coloredMessage) {
-    System.out.println(coloredMessage);
-  }
-
-  /**
-   * Appends raw log entry to current daily file.
-   * Creates file if missing, appends otherwise.
-   */
-  private void appendToLogFile(String entry) throws IOException {
-    try (BufferedWriter writer = Files.newBufferedWriter(
-            new File(filePath).toPath(),
-            StandardCharsets.UTF_8,
-            StandardOpenOption.CREATE,
-            StandardOpenOption.APPEND)
-    ) {
+  private void appendToFile(String entry, String date) throws IOException {
+    Path file = logDirectory.resolve(date + ".log");
+    try (BufferedWriter writer = Files.newBufferedWriter(file,
+                                                         StandardCharsets.UTF_8,
+                                                         StandardOpenOption.CREATE,
+                                                         StandardOpenOption.APPEND)) {
       writer.write(entry);
       writer.newLine();
     }
   }
 
   /**
-   * Handles file write errors with simple stderr output.
-   * More sophisticated handlers could be added here.
+   * Handles I/O errors with simple stderr reporting.
    */
   private void handleWriteError(Exception e) {
-    System.err.println("Log write failure: " + e.getMessage());
+    System.err.println("Log write error: " + e.getMessage());
+  }
+
+  // Utility methods
+  private String getCurrentDate() {
+    return LocalDateTime.now(ZONE).format(DATE_FMT);
+  }
+
+  private String formatTimestamp(long epochMillis) {
+    return TIME_FMT.format(LocalDateTime.ofInstant(
+            Instant.ofEpochMilli(epochMillis), ZONE));
   }
 }
