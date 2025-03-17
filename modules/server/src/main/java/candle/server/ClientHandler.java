@@ -147,15 +147,26 @@ public class ClientHandler implements Runnable {
     sendPacket(0x01, payloadBuffer);
   }
 
-  private void sendLoginSuccess( UUID uuid, String username ) throws
-                                                              IOException {
+  private void sendLoginSuccess( UUID uuid, String username ) throws IOException {
     ByteArrayOutputStream payloadBuffer = new ByteArrayOutputStream();
-    // Use the canonical UUID string with hyphens (36 characters)
-    writeString(payloadBuffer, uuid.toString());
+
+    // Schreibe UUID als 16-Byte-Wert
+    writeUUID(payloadBuffer, uuid);
     writeString(payloadBuffer, username);
+
+    // Leere Property-Liste senden (falls erwartet)
+    writeVarInt(payloadBuffer, 0);
+
     sendPacket(0x02, payloadBuffer);
   }
 
+  private void writeUUID(OutputStream output, UUID uuid) throws IOException {
+    ByteArrayOutputStream uuidBuffer = new ByteArrayOutputStream();
+    DataOutputStream dataOut = new DataOutputStream(uuidBuffer);
+    dataOut.writeLong(uuid.getMostSignificantBits());
+    dataOut.writeLong(uuid.getLeastSignificantBits());
+    output.write(uuidBuffer.toByteArray());
+  }
 
   private void sendDisconnect( String message ) throws
                                                 IOException {
@@ -173,13 +184,14 @@ public class ClientHandler implements Runnable {
     ByteArrayOutputStream packetBuffer = new ByteArrayOutputStream();
     writeVarInt(packetBuffer, packetId);           // Write packet ID
     payloadBuffer.writeTo(packetBuffer);             // Append payload data
-    byte[] packetData = packetBuffer.toByteArray();
-
+    ByteArrayOutputStream prefixedPacketBuffer = new ByteArrayOutputStream();
+    writeVarInt(prefixedPacketBuffer, packetBuffer.size());
+    packetBuffer.writeTo(prefixedPacketBuffer);
+    byte[] packetData = prefixedPacketBuffer.toByteArray();
     // Debug: print hex dump of the packet data
     System.out.println("Sending packet with ID " + packetId + ": " + bytesToHex(packetData));
 
     // Write the full packet length first
-    writeVarInt(out, packetData.length);
     out.write(packetData);
     out.flush();
   }

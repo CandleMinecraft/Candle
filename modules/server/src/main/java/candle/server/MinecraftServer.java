@@ -3,6 +3,8 @@ package candle.server;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -16,16 +18,20 @@ public class MinecraftServer {
   private final int maxPlayers;
   // Thread-Pool für Client-Handler
   private final ExecutorService threadPool = Executors.newCachedThreadPool();
+  private final boolean debug;
 
-  public MinecraftServer( int port, String motd, int maxPlayers ) {
+  public MinecraftServer( int port, String motd, int maxPlayers, boolean debug ) {
     this.port = port;
     this.motd = motd;
     this.maxPlayers = maxPlayers;
+    this.debug = debug;
   }
 
-  public static void main( String[] args ) {
+  public static void main( String[] argsArray ) {
+    List<String> args = Arrays.asList(argsArray);
+
     // Standard-Serverstart auf Port 25565 mit MOTD und max. 20 Spielern
-    MinecraftServer server = new MinecraftServer(25565, "§aMein Minecraft-Server", 20);
+    MinecraftServer server = new MinecraftServer(25565, "§aMein Minecraft-Server", 20, args.contains("--debug"));
     server.start();
   }
 
