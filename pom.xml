@@ -18,7 +18,7 @@
         <module>modules/protocol/base</module>
         <module>modules/protocol/769</module>
         <module>modules/base/event</module>
-        <module>modules/base/logging</module>
+        <module>modules/base/logger</module>
     </modules>
 
     <properties>
@@ -49,7 +49,7 @@
             </dependency>
             <dependency>
                 <groupId>net.candlemc.candle</groupId>
-                <artifactId>logging</artifactId>
+                <artifactId>logger</artifactId>
                 <version>0.1.0</version>
             </dependency>
         </dependencies>

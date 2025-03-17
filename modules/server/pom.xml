@@ -22,6 +22,10 @@
             <groupId>net.candlemc.candle</groupId>
             <artifactId>event</artifactId>
         </dependency>
+        <dependency>
+            <groupId>net.candlemc.candle</groupId>
+            <artifactId>logger</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

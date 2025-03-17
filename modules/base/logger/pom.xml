@@ -11,7 +11,7 @@
         <relativePath>../../../pom.xml</relativePath>
     </parent>
 
-    <artifactId>logging</artifactId>
+    <artifactId>logger</artifactId>
 
     <dependencies>
         <!-- Common logging dependencies -->
