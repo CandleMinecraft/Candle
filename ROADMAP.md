@@ -6,3 +6,5 @@ Cancelled = ~~Strikethrough~~
 
 ---
 
+- Hot Reload
+  - Check if the plugin hash has changed
