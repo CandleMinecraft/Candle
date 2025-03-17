@@ -1,5 +1,8 @@
 package candle.server;
 
+import candle.logger.Logger;
+import candle.logger.LoggerBuilder;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -10,6 +13,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class MinecraftServer {
+  private Logger logger;
+
   // Zähler für verbundene Spieler
   protected final AtomicInteger onlineCount = new AtomicInteger(0);
   // Server-Einstellungen
@@ -25,29 +30,36 @@ public class MinecraftServer {
     this.motd = motd;
     this.maxPlayers = maxPlayers;
     this.debug = debug;
+    this.logger = new LoggerBuilder()
+            .setShowDate(false)
+            .setShowTime(true)
+            .setShowLogLevel(true)
+            .setShowClassName(true)
+            .setShowLineNumber(true)
+            .build();
   }
 
   public static void main( String[] argsArray ) {
     List<String> args = Arrays.asList(argsArray);
 
     // Standard-Serverstart auf Port 25565 mit MOTD und max. 20 Spielern
-    MinecraftServer server = new MinecraftServer(25565, "§aMein Minecraft-Server", 20, args.contains("--debug"));
+    MinecraftServer server = new MinecraftServer(25565, "§aCandleMC§r §8§l»§f The most modern Server Software!", 20, args.contains("--debug"));
     server.start();
   }
 
   public void start() {
-    System.out.println("Starting MinecraftServer on port " + port + " ...");
+    logger.info("Starting MinecraftServer on port " + port + " ...");
     try ( ServerSocket serverSocket = new ServerSocket(port) ) {
-      System.out.println("Server is running. Waiting for connections...");
+      logger.info("Server is running. Waiting for connections...");
       // Endlosschleife zum Akzeptieren neuer Verbindungen
       while ( true ) {
         Socket clientSocket = serverSocket.accept();
         // Neue Verbindung -> ClientHandler in separatem Thread starten
-        ClientHandler handler = new ClientHandler(clientSocket, this);
+        ClientHandler handler = new ClientHandler(clientSocket, this, logger);
         threadPool.execute(handler);
       }
     } catch ( IOException e ) {
-      System.err.println("Server error: " + e.getMessage());
+      logger.error("Server error: " + e.getMessage());
     } finally {
       threadPool.shutdown();
     }
@@ -60,5 +72,9 @@ public class MinecraftServer {
 
   protected int getMaxPlayers() {
     return maxPlayers;
+  }
+
+  protected boolean isDebug() {
+    return debug;
   }
 }

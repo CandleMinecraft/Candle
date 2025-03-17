@@ -1,5 +1,7 @@
 package candle.server;
 
+import candle.logger.Logger;
+
 import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
@@ -8,34 +10,36 @@ import java.util.UUID;
 public class ClientHandler implements Runnable {
   private final Socket socket;
   private final MinecraftServer server;
-  private InputStream in;
-  private OutputStream out;
+  private final Logger logger;
+  private InputStream inputStream; // Client -> Server
+  private OutputStream outputStream; // Server -> Client
 
-  public ClientHandler( Socket socket, MinecraftServer server ) {
+  public ClientHandler( Socket socket, MinecraftServer server, Logger logger ) {
     this.socket = socket;
     this.server = server;
+    this.logger = logger;
   }
 
   @Override
   public void run() {
     String clientAddress = socket.getInetAddress().getHostAddress();
-    System.out.println("New connection from " + clientAddress);
+    logger.info("New connection from " + clientAddress);
     try {
-      in = socket.getInputStream();
-      out = socket.getOutputStream();
+      inputStream = socket.getInputStream();
+      outputStream = socket.getOutputStream();
 
       // Handshake verarbeiten
       int packetLength = readVarInt();
       int packetId = readVarInt();
       if ( packetId != 0x00 ) {
-        System.err.println("Unexpected packet ID in handshake: " + packetId);
+        logger.error("Unexpected packet ID in handshake: " + packetId);
         return;
       }
       int protocolVersion = readVarInt();
       String serverAddress = readString();
       int serverPort = readUnsignedShort();
       int nextState = readVarInt();
-      System.out.println("Handshake from " + clientAddress +
+      logger.info("Handshake from " + clientAddress +
                          ": protocol=" + protocolVersion +
                          ", nextState=" + nextState);
 
@@ -55,12 +59,12 @@ public class ClientHandler implements Runnable {
         handleLogin();
       }
     } catch ( IOException e ) {
-      System.err.println("Connection error: " + e.getMessage());
+      logger.error("Connection error: " + e.getMessage());
     } finally {
       try {
         socket.close();
       } catch ( IOException ignore ) {}
-      System.out.println("Connection with " + clientAddress + " closed.");
+      logger.info("Connection with " + clientAddress + " closed.");
     }
   }
 
@@ -70,7 +74,7 @@ public class ClientHandler implements Runnable {
     int length = readVarInt();
     int requestId = readVarInt();
     if ( requestId != 0x00 ) {
-      System.err.println("Unexpected packet in status phase: " + requestId);
+      logger.error("Unexpected packet in status phase: " + requestId);
       return;
     }
     String statusJson = buildStatusJson();
@@ -90,27 +94,27 @@ public class ClientHandler implements Runnable {
     int length = readVarInt();
     int loginId = readVarInt();
     if ( loginId != 0x00 ) {
-      System.err.println("Unexpected packet in login phase: " + loginId);
+      logger.error("Unexpected packet in login phase: " + loginId);
       return;
     }
     String playerName = readString();
-    System.out.println("Player '" + playerName + "' is logging in...");
+    logger.info("Player '" + playerName + "' is logging in...");
 
     UUID uuid = UUID.nameUUIDFromBytes(( "OfflinePlayer:" + playerName ).getBytes(StandardCharsets.UTF_8));
     sendLoginSuccess(uuid, playerName);
     server.onlineCount.incrementAndGet();
-    System.out.println(playerName + " joined the server. Online count: " + server.onlineCount.get());
+    logger.info(playerName + " joined the server. Online count: " + server.onlineCount.get());
 
     try {
       while ( true ) {
-        int data = in.read();
+        int data = inputStream.read();
         if ( data == -1 ) {
           break;
         }
       }
     } finally {
       server.onlineCount.decrementAndGet();
-      System.out.println(playerName + " left the server. Online count: " + server.onlineCount.get());
+      logger.info(playerName + " left the server. Online count: " + server.onlineCount.get());
     }
   }
 
@@ -189,11 +193,11 @@ public class ClientHandler implements Runnable {
     packetBuffer.writeTo(prefixedPacketBuffer);
     byte[] packetData = prefixedPacketBuffer.toByteArray();
     // Debug: print hex dump of the packet data
-    System.out.println("Sending packet with ID " + packetId + ": " + bytesToHex(packetData));
+    logger.info("Sending packet with ID " + packetId + ": " + bytesToHex(packetData));
 
     // Write the full packet length first
-    out.write(packetData);
-    out.flush();
+    outputStream.write(packetData);
+    outputStream.flush();
   }
 
   private String bytesToHex( byte[] bytes ) {
@@ -242,7 +246,7 @@ public class ClientHandler implements Runnable {
     int result = 0;
     byte read;
     do {
-      int byteVal = in.read();
+      int byteVal = inputStream.read();
       if ( byteVal == -1 ) {
         throw new IOException("Stream ended while reading VarInt");
       }
@@ -262,7 +266,7 @@ public class ClientHandler implements Runnable {
     byte[] bytes = new byte[length];
     int readBytes = 0;
     while ( readBytes < length ) {
-      int res = in.read(bytes, readBytes, length - readBytes);
+      int res = inputStream.read(bytes, readBytes, length - readBytes);
       if ( res == -1 ) {
         throw new IOException("Stream ended while reading String");
       }
@@ -273,8 +277,8 @@ public class ClientHandler implements Runnable {
 
   private int readUnsignedShort() throws
                                   IOException {
-    int hi = in.read();
-    int lo = in.read();
+    int hi = inputStream.read();
+    int lo = inputStream.read();
     if ( lo == -1 ) {
       throw new IOException("Stream ended while reading unsigned short");
     }
@@ -283,7 +287,7 @@ public class ClientHandler implements Runnable {
 
   private long readLong() throws
                           IOException {
-    DataInputStream dataIn = new DataInputStream(in);
+    DataInputStream dataIn = new DataInputStream(inputStream);
     return dataIn.readLong();
   }
 }
