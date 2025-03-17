@@ -21,7 +21,7 @@ public class Packet {
     this.state = state;
     this.length = readVarInt(in);
     this.id = readVarInt(in);
-    int idLength = (Integer.toBinaryString(id).length() + 7) / 8;
+    int idLength = (38 - Integer.numberOfLeadingZeros(this.id | 1)) / 7;
     data = in.readNBytes(this.length - idLength);
   }
 
