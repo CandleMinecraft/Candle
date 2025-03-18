@@ -24,16 +24,19 @@ public class Logger {
 
   private final boolean debug; // Is the Logger in Debug Mode.
 
-  public Logger() throws
-                  IOException {
-    this(false);
+  public Logger() {
+    this(Boolean.getBoolean("candlemc.debugMode"));
   }
 
-  public Logger( boolean debug ) throws
-                                 IOException {
+  public Logger( boolean debug ) {
     this.debug = debug;
 
-    Files.createDirectories(Path.of(System.getProperty("user.dir") + "/logs"));
+    try {
+      Files.createDirectories(Path.of(System.getProperty("user.dir") + "/logs"));
+    } catch ( IOException e ) {
+      fatal("Unable to create logs inside user directory!");
+      stacktrace(e);
+    }
   }
 
   public void log( LoggingStrategy strategy, Object... content ) {

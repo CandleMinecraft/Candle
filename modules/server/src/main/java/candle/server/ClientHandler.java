@@ -9,12 +9,12 @@ import java.util.UUID;
 
 public class ClientHandler implements Runnable {
   private final Socket socket;
-  private final MinecraftServer server;
+  private final MinecraftServerOld server;
   private final Logger logger;
   private InputStream inputStream; // Client -> Server
   private OutputStream outputStream; // Server -> Client
 
-  public ClientHandler( Socket socket, MinecraftServer server, Logger logger ) {
+  public ClientHandler( Socket socket, MinecraftServerOld server, Logger logger ) {
     this.socket = socket;
     this.server = server;
     this.logger = logger;

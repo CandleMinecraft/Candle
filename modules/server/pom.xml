@@ -26,6 +26,16 @@
             <groupId>net.candlemc.candle</groupId>
             <artifactId>logger</artifactId>
         </dependency>
+        <dependency>
+            <groupId>net.candlemc.candle</groupId>
+            <artifactId>candle-base-types</artifactId>
+            <version>0.1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>net.candlemc.candle</groupId>
+            <artifactId>protocol-769</artifactId>
+            <version>0.1.0</version>
+        </dependency>
     </dependencies>
 
     <build>

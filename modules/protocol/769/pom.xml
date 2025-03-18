@@ -18,6 +18,11 @@
             <artifactId>protocol-base</artifactId>
             <version>0.1.0</version>
         </dependency>
+        <dependency>
+            <groupId>net.candlemc.candle</groupId>
+            <artifactId>candle-base-types</artifactId>
+            <version>0.1.0</version>
+        </dependency>
     </dependencies>
 
     <build>
