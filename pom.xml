@@ -19,6 +19,7 @@
         <module>modules/protocol/769</module>
         <module>modules/base/event</module>
         <module>modules/base/logger</module>
+        <module>modules/base/types</module>
     </modules>
 
     <properties>
@@ -50,6 +51,11 @@
             <dependency>
                 <groupId>net.candlemc.candle</groupId>
                 <artifactId>logger</artifactId>
+                <version>0.1.0</version>
+            </dependency>
+            <dependency>
+                <groupId>net.candlemc.candle</groupId>
+                <artifactId>types</artifactId>
                 <version>0.1.0</version>
             </dependency>
         </dependencies>

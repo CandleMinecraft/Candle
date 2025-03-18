@@ -1,75 +1,52 @@
 package candle.server;
 
 import candle.logger.Logger;
+import candle.protocol.Client;
+import candle.protocol.codec.AbstractDataCodec;
+import candle.protocol.codec.MinecraftDataCodec769;
+import candle.types.resource.Identifier;
+import candle.types.resource.Registry;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class MinecraftServer {
-  // Zähler für verbundene Spieler
-  protected final AtomicInteger onlineCount = new AtomicInteger(0);
-  // Server-Einstellungen
-  private final int port;
-  private final String motd;
-  private final int maxPlayers;
-  // Thread-Pool für Client-Handler
+  private final Logger logger = new Logger();
   private final ExecutorService threadPool = Executors.newCachedThreadPool();
-  private final boolean debug;
-  private final Logger logger;
+  private Registry<AbstractDataCodec> dataCodecRegistry;
+  private Registry<Registry<?>> registryRegistry;
 
-  public MinecraftServer( int port, String motd, int maxPlayers, boolean debug ) throws
-                                                                                 IOException {
-    this.port = port;
-    this.motd = motd;
-    this.maxPlayers = maxPlayers;
-    this.debug = debug;
-    this.logger = new Logger(true);
+  public MinecraftServer() {
+    initRegistries();
   }
 
-  public static void main( String[] argsArray ) throws
-                                                IOException {
-    List<String> args = Arrays.asList(argsArray);
-
-    // Standard-Serverstart auf Port 25565 mit MOTD und max. 20 Spielern
-    MinecraftServer server = new MinecraftServer(25565, "§aCandleMC§r §8§l»§f The most modern Server Software!", 20,
-                                                 args.contains("--debug"));
-    server.start();
+  public static void main( String[] args ) {
+    MinecraftServer server = new MinecraftServer();
+    server.start(25565);
   }
 
-  public void start() {
+  private void initRegistries() {
+    dataCodecRegistry = new Registry<>(Identifier.of("candlemc", "data_codec"));
+    registryRegistry = new Registry<>(Identifier.of("candlemc", "registry"));
+    registryRegistry.register(dataCodecRegistry);
+    dataCodecRegistry.register(new MinecraftDataCodec769());
+  }
+
+  public void start( int port ) {
     logger.info("Starting MinecraftServer on port " + port + " ...");
     try ( ServerSocket serverSocket = new ServerSocket(port) ) {
       logger.info("Server is running. Waiting for connections...");
-      // Endlosschleife zum Akzeptieren neuer Verbindungen
       while ( true ) {
         Socket clientSocket = serverSocket.accept();
-        // Neue Verbindung -> ClientHandler in separatem Thread starten
-        ClientHandler handler = new ClientHandler(clientSocket, this, logger);
-        threadPool.execute(handler);
+        Client client = new Client(clientSocket);
+        threadPool.execute(client);
       }
     } catch ( IOException e ) {
-      logger.error("Server error: " + e.getMessage());
-    } finally {
-      threadPool.shutdown();
+      logger.fatal("Error when starting the server!");
+      logger.stacktrace(e);
     }
-  }
-
-  // Getter für MOTD und MaxPlayers (für Zugriff im ClientHandler)
-  protected String getMotd() {
-    return motd;
-  }
-
-  protected int getMaxPlayers() {
-    return maxPlayers;
-  }
-
-  protected boolean isDebug() {
-    return debug;
   }
 }
