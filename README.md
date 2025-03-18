@@ -3,7 +3,7 @@
 *Engine-first design for speed, simplicity & innovation*  
 🚧 **Experimental Pre-Alpha** · Mono Repository · **1% Complete** 🚧  
 
-[![License](https://img.shields.io/badge/license-MIT-orange.svg)](LICENSE)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 ![Java](https://img.shields.io/badge/Java-21%2B-orange?logo=openjdk)
 
 > **Warning**  
@@ -75,5 +75,5 @@ cd Candle
 ---
 
 ## 📜 License
-Open-source under [GPLv3](LICENSE).  
+Open-source under [MIT](LICENSE).  
 *Protocol work references [Minecraft Wiki](https://minecraft.wiki/w/Java_Edition_protocol).*
