@@ -5,8 +5,6 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 
 public class StackTraceLoggingStrategy extends CandleLoggingStrategy {
-  private final String LOG_LEVEL = "STACKTRACE";
-
   public StackTraceLoggingStrategy( ExecutorService executor ) {
     super(
             "error",
@@ -17,40 +15,49 @@ public class StackTraceLoggingStrategy extends CandleLoggingStrategy {
   }
 
   @Override
-  public String generateConsoleMessage( StringBuilder builder, String format, long timestamp,
-                                        StackTraceElement caller, Object... content ) {
-    String finalMessage = generateLogFileMessage(builder, format, timestamp, caller, content);
-    // Terminal-Ausgabe: Header anpassen und Footer entfernen
-    List<String> lines = Arrays.asList(finalMessage.split("\n"));
+  public String generateMessage( String name, StringBuilder builder, String format, long timestamp,
+                                 StackTraceElement caller, Object... content ) {
+    // Build the message with plain headers and process exceptions
+    StringBuilder messageBuilder = new StringBuilder();
 
-    lines.set(0, String.format("[%s] -----------  %sSTACKTRACE BEGIN%s  -----------", formatTimestamp(timestamp),
-                               ANSIColors.BOLD_RED, ANSIColors.RESET));
-    lines.set(lines.size() - 1,
-              String.format("[%s] -----------  %sSTACKTRACE END%s  -----------", formatTimestamp(timestamp),
-                            ANSIColors.BOLD_RED, ANSIColors.RESET));
-    return String.join("\n", lines);
-  }
-
-  @Override
-  public String generateLogFileMessage( StringBuilder builder, String format, long timestamp,
-                                        StackTraceElement caller, Object... content ) {
+    // Header
     String header = String.format("[%s] ----------- STACKTRACE BEGIN -----------", formatTimestamp(timestamp));
-    builder.append(header).append("\n");
+    messageBuilder.append(header).append("\n");
 
+    // Process Throwable in content
     for ( Object obj : content ) {
       if ( obj instanceof Throwable throwable ) {
-        processThrowable(throwable, builder, timestamp);
+        processThrowable(name, throwable, messageBuilder, timestamp);
       }
     }
 
-    // Stacktrace-Footer
+    // Footer
     String footer = String.format("[%s] -----------  STACKTRACE END  -----------", formatTimestamp(timestamp));
-    builder.append(footer);
+    messageBuilder.append(footer);
 
-    return builder.toString();
+    return messageBuilder.toString();
   }
 
-  private void processThrowable( Throwable throwable, StringBuilder builder, long timestamp ) {
+  @Override
+  public String generateConsoleMessage( String name, StringBuilder builder, String format, long timestamp,
+                                        StackTraceElement caller, Object... content ) {
+    String message = generateMessage(name, builder, format, timestamp, caller, content);
+    List<String> lines = Arrays.asList(message.split("\n"));
+
+    // Colorize "STACKTRACE BEGIN" and "STACKTRACE END" in the first and last lines
+    String coloredBegin = ANSIColors.BOLD_RED + "STACKTRACE BEGIN" + ANSIColors.RESET;
+    String coloredEnd = ANSIColors.BOLD_RED + "STACKTRACE END" + ANSIColors.RESET;
+
+    lines.set(0, lines.getFirst().replace("STACKTRACE BEGIN", coloredBegin));
+    lines.set(lines.size() - 1, lines.getLast().replace("STACKTRACE END", coloredEnd));
+
+    return String.join("\n", lines);
+  }
+
+  private void processThrowable( String name, Throwable throwable, StringBuilder builder, long timestamp ) {
+    builder.append(String.format("[%s] From (Module/Plugin/CandleMC): %s", formatTimestamp(timestamp), name))
+           .append("\n");
+
     // Haupt-Exception
     addExceptionDetails(throwable, builder, timestamp);
 

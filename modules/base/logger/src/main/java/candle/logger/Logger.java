@@ -9,7 +9,6 @@ import java.util.concurrent.Executors;
 public class Logger {
   // Single Thread Executor for all logging operations
   private static final ExecutorService executor = Executors.newSingleThreadExecutor();
-
   private static final LoggingStrategy debugStrategy = new CandleLoggingStrategy(
           "debug", "DEBUG", executor, ANSIColors.GREEN);
   private static final LoggingStrategy errorStrategy = new CandleLoggingStrategy(
@@ -21,7 +20,7 @@ public class Logger {
   private static final LoggingStrategy stackTraceStrategy = new StackTraceLoggingStrategy(executor);
   private static final LoggingStrategy warnStrategy = new CandleLoggingStrategy(
           "info", "WARN", executor, ANSIColors.YELLOW);
-
+  private final String name; // Name of the Module, Plugin and so on.
   private final boolean debug; // Is the Logger in Debug Mode.
 
   public Logger() throws
@@ -29,17 +28,24 @@ public class Logger {
     this(false);
   }
 
-  public Logger( boolean debug ) throws
-                                 IOException {
+  public Logger( boolean debug, String name ) throws
+                                              IOException {
+    this.name = name;
     this.debug = debug;
 
     Files.createDirectories(Path.of(System.getProperty("user.dir") + "/logs"));
   }
 
+  public Logger( boolean debug ) throws
+                                 IOException {
+    this(debug, "CandleMC");
+  }
+
   public void log( LoggingStrategy strategy, Object... content ) {
-    String FORMAT_NORMAL = "[%timestamp] - %log_level - %content";
-    String FORMAT_DEBUG = "[%timestamp] - %log_level - %package:%line - %content";
+    String FORMAT_NORMAL = "[%timestamp] - %name - %log_level - %content";
+    String FORMAT_DEBUG = "[%timestamp] - %name - %log_level - %package:%line - %content";
     strategy.log(
+            this.name,
             debug ? FORMAT_DEBUG : FORMAT_NORMAL,
             System.currentTimeMillis(),
             content);

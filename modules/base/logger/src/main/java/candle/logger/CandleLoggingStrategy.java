@@ -27,7 +27,8 @@ public class CandleLoggingStrategy implements LoggingStrategy {
     this.ANSIColor = ansiColor;
   }
 
-  public CandleLoggingStrategy( String fileName, String logLevel, ExecutorService executor, String ansiColor ) {
+  public CandleLoggingStrategy( String fileName, String logLevel, ExecutorService executor,
+                                String ansiColor ) {
     this.PATH = Path.of(System.getProperty("user.dir"), "logs", fileName.toLowerCase(Locale.ROOT) + ".log")
                     .toAbsolutePath();
     this.LOG_LEVEL = logLevel;
@@ -43,7 +44,7 @@ public class CandleLoggingStrategy implements LoggingStrategy {
   }
 
   @Override
-  public void log( String format, long timestamp, Object... content ) {
+  public void log( String name, String format, long timestamp, Object... content ) {
     StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
     StackTraceElement caller = stackTraceElements[4];
 
@@ -55,12 +56,14 @@ public class CandleLoggingStrategy implements LoggingStrategy {
 
       try {
         System.out.println(generateConsoleMessage(
+                name,
                 stringBuilder,
                 format,
                 timestamp,
                 caller,
                 content));
         writeToFile(generateLogFileMessage(
+                name,
                 stringBuilder,
                 format,
                 timestamp,
@@ -72,29 +75,32 @@ public class CandleLoggingStrategy implements LoggingStrategy {
     });
   }
 
-  public String generateConsoleMessage( StringBuilder builder, String format, long timestamp,
-                                        StackTraceElement caller, Object... content ) {
+  public String generateMessage( String name, StringBuilder builder, String format, long timestamp,
+                                 StackTraceElement caller, Object... content ) {
     String newFormat = format
             .replace("%timestamp", formatTimestamp(timestamp))
+            .replace("%name", name)
             .replace("%package", caller.getClassName())
             .replace("%line", Integer.toString(caller.getLineNumber()));
 
     return newFormat
             .replace("%content", builder.toString())
-            .replace("\n ", "\n" + newFormat.replace("%content", "")).stripIndent()
+            .replace("\n ", "\n" + newFormat.replace("%content", "")).stripIndent();
+  }
+
+  public String generateConsoleMessage( String name, StringBuilder builder, String format, long timestamp,
+                                        StackTraceElement caller, Object... content ) {
+    return generateMessage(name, builder, format, timestamp, caller, content)
             .replace("%log_level", ANSIColor + LOG_LEVEL + ANSIColors.RESET);
   }
 
-  public String generateLogFileMessage( StringBuilder builder, String format, long timestamp,
+  public String generateLogFileMessage( String name, StringBuilder builder, String format, long timestamp,
                                         StackTraceElement caller, Object... content ) {
-    String newFormat = format
-            .replace("%timestamp", formatTimestamp(timestamp))
-            .replace("%package", caller.getClassName())
-            .replace("%line", Integer.toString(caller.getLineNumber()));
-
-    return newFormat
-            .replace("%content", builder.toString())
-            .replace("\n ", "\n" + newFormat.replace("%content", "")).stripIndent()
+    String fileFormat = format;
+    if ( !fileFormat.contains("%package:%line") ) {
+      fileFormat = fileFormat.replaceFirst("%log_level", "%log_level - %package:%line");
+    }
+    return generateMessage(name, builder, fileFormat, timestamp, caller, content)
             .replace("%log_level", LOG_LEVEL);
   }
 
