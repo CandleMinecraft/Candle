@@ -3,7 +3,7 @@
 *Engine-first design for speed, simplicity & innovation*  
 🚧 **Experimental Pre-Alpha** · Mono Repository · **1% Complete** 🚧  
 
-[![License](https://img.shields.io/badge/License-GPLv3-orange.svg)](LICENSE)
+[![License](https://img.shields.io/badge/license-MIT-orange.svg)](LICENSE)
 ![Java](https://img.shields.io/badge/Java-21%2B-orange?logo=openjdk)
 
 > **Warning**  
