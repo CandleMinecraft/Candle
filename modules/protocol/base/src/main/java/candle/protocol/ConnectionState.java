@@ -20,7 +20,7 @@ public class ConnectionState {
 
   private final String name;
 
-  ConnectionState(String name) {
+  ConnectionState( String name ) {
     this.name = name;
   }
 

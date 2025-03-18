@@ -23,7 +23,8 @@ public class Client implements Runnable {
       in = socket.getInputStream();
       out = socket.getOutputStream();
       HandshakePacket handshake = new HandshakePacket(in);
-      System.out.printf("Handshake from: %s protocol=%s, nextState=%s%n", clientAddress, handshake.getProtocolVersion(), handshake.getNextState());
+      System.out.printf("Handshake from: %s protocol=%s, nextState=%s%n", clientAddress, handshake.getProtocolVersion(),
+                        handshake.getNextState());
     } catch ( IOException e ) {
       throw new RuntimeException(e);
     } finally {

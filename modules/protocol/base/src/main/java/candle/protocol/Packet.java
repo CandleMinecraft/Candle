@@ -16,16 +16,16 @@ public class Packet {
   private final ConnectionState state;
   private final byte[] data;
 
-  public Packet(InputStream in, ConnectionState state) throws
-                                IOException {
+  public Packet( InputStream in, ConnectionState state ) throws
+                                                         IOException {
     this.state = state;
     this.length = readVarInt(in);
     this.id = readVarInt(in);
-    int idLength = (38 - Integer.numberOfLeadingZeros(this.id | 1)) / 7;
+    int idLength = ( 38 - Integer.numberOfLeadingZeros(this.id | 1) ) / 7;
     data = in.readNBytes(this.length - idLength);
   }
 
-  public Packet(int length, int id, ConnectionState state, byte[] data) {
+  public Packet( int length, int id, ConnectionState state, byte[] data ) {
     this.length = length;
     this.id = id;
     this.state = state;
@@ -33,7 +33,7 @@ public class Packet {
   }
 
   public static void writeVarInt( OutputStream output, int value ) throws
-                                                             IOException {
+                                                                   IOException {
     while ( ( value & ~0x7F ) != 0 ) {
       output.write(( value & 0x7F ) | 0x80);
       value >>>= 7;
@@ -45,7 +45,7 @@ public class Packet {
    * Schreibt einen String (UTF-8) inkl. VarInt-Längenpräfix in einen OutputStream.
    */
   public static void writeString( OutputStream output, String str ) throws
-                                                              IOException {
+                                                                    IOException {
     byte[] bytes = str.getBytes(StandardCharsets.UTF_8);
     writeVarInt(output, bytes.length);
     output.write(bytes);
@@ -55,13 +55,13 @@ public class Packet {
    * Schreibt einen 8-Byte Long (Big-Endian) in einen OutputStream.
    */
   public static void writeLong( OutputStream output, long value ) throws
-                                                            IOException {
+                                                                  IOException {
     DataOutputStream dataOut = new DataOutputStream(output);
     dataOut.writeLong(value);
   }
 
   public static int readVarInt( InputStream in ) throws
-                           IOException {
+                                                 IOException {
     int numRead = 0;
     int result = 0;
     byte read;
@@ -80,8 +80,8 @@ public class Packet {
     return result;
   }
 
-  public static String readString(InputStream in) throws
-                              IOException {
+  public static String readString( InputStream in ) throws
+                                                    IOException {
     int length = readVarInt(in);
     byte[] bytes = new byte[length];
     int readBytes = 0;
@@ -95,8 +95,8 @@ public class Packet {
     return new String(bytes, StandardCharsets.UTF_8);
   }
 
-  public static int readUnsignedShort(InputStream in) throws
-                                  IOException {
+  public static int readUnsignedShort( InputStream in ) throws
+                                                        IOException {
     int hi = in.read();
     int lo = in.read();
     if ( lo == -1 ) {
@@ -105,17 +105,17 @@ public class Packet {
     return ( ( hi & 0xFF ) << 8 ) | ( lo & 0xFF );
   }
 
-  private long readLong(InputStream in) throws
-                          IOException {
-    DataInputStream dataIn = new DataInputStream(in);
-    return dataIn.readLong();
-  }
-
   public static String bytesToHex( byte[] bytes ) {
     StringBuilder sb = new StringBuilder();
     for ( byte b : bytes ) {
       sb.append(String.format("%02X ", b));
     }
     return sb.toString();
+  }
+
+  private long readLong( InputStream in ) throws
+                                          IOException {
+    DataInputStream dataIn = new DataInputStream(in);
+    return dataIn.readLong();
   }
 }

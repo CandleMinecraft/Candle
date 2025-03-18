@@ -1,7 +1,6 @@
 package candle.server;
 
 import candle.logger.Logger;
-import candle.logger.LoggerBuilder;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -13,8 +12,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class MinecraftServer {
-  private Logger logger;
-
   // Zähler für verbundene Spieler
   protected final AtomicInteger onlineCount = new AtomicInteger(0);
   // Server-Einstellungen
@@ -24,26 +21,24 @@ public class MinecraftServer {
   // Thread-Pool für Client-Handler
   private final ExecutorService threadPool = Executors.newCachedThreadPool();
   private final boolean debug;
+  private final Logger logger;
 
-  public MinecraftServer( int port, String motd, int maxPlayers, boolean debug ) {
+  public MinecraftServer( int port, String motd, int maxPlayers, boolean debug ) throws
+                                                                                 IOException {
     this.port = port;
     this.motd = motd;
     this.maxPlayers = maxPlayers;
     this.debug = debug;
-    this.logger = new LoggerBuilder()
-            .setShowDate(false)
-            .setShowTime(true)
-            .setShowLogLevel(true)
-            .setShowClassName(true)
-            .setShowLineNumber(true)
-            .build();
+    this.logger = new Logger(true);
   }
 
-  public static void main( String[] argsArray ) {
+  public static void main( String[] argsArray ) throws
+                                                IOException {
     List<String> args = Arrays.asList(argsArray);
 
     // Standard-Serverstart auf Port 25565 mit MOTD und max. 20 Spielern
-    MinecraftServer server = new MinecraftServer(25565, "§aCandleMC§r §8§l»§f The most modern Server Software!", 20, args.contains("--debug"));
+    MinecraftServer server = new MinecraftServer(25565, "§aCandleMC§r §8§l»§f The most modern Server Software!", 20,
+                                                 args.contains("--debug"));
     server.start();
   }
 

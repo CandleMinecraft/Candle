@@ -40,8 +40,8 @@ public class ClientHandler implements Runnable {
       int serverPort = readUnsignedShort();
       int nextState = readVarInt();
       logger.info("Handshake from " + clientAddress +
-                         ": protocol=" + protocolVersion +
-                         ", nextState=" + nextState);
+                  ": protocol=" + protocolVersion +
+                  ", nextState=" + nextState);
 
       if ( protocolVersion != 769 ) {
         if ( nextState == 2 ) {
@@ -151,7 +151,8 @@ public class ClientHandler implements Runnable {
     sendPacket(0x01, payloadBuffer);
   }
 
-  private void sendLoginSuccess( UUID uuid, String username ) throws IOException {
+  private void sendLoginSuccess( UUID uuid, String username ) throws
+                                                              IOException {
     ByteArrayOutputStream payloadBuffer = new ByteArrayOutputStream();
 
     // Schreibe UUID als 16-Byte-Wert
@@ -164,7 +165,8 @@ public class ClientHandler implements Runnable {
     sendPacket(0x02, payloadBuffer);
   }
 
-  private void writeUUID(OutputStream output, UUID uuid) throws IOException {
+  private void writeUUID( OutputStream output, UUID uuid ) throws
+                                                           IOException {
     ByteArrayOutputStream uuidBuffer = new ByteArrayOutputStream();
     DataOutputStream dataOut = new DataOutputStream(uuidBuffer);
     dataOut.writeLong(uuid.getMostSignificantBits());
