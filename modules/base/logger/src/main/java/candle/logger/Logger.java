@@ -7,7 +7,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class Logger {
-  // Single Thread Executor für alle Logging-Operationen
+  // Single Thread Executor for all logging operations
   private static final ExecutorService executor = Executors.newSingleThreadExecutor();
 
   private static final LoggingStrategy debugStrategy = new CandleLoggingStrategy(
@@ -34,17 +34,6 @@ public class Logger {
     this.debug = debug;
 
     Files.createDirectories(Path.of(System.getProperty("user.dir") + "/logs"));
-  }
-
-  public static void main( String[] args ) throws
-                                           IOException {
-    Logger logger = new Logger(true);
-    logger.debug("Debug");
-    logger.error("Error");
-    logger.fatal("Fatal");
-    logger.info("Info");
-    logger.stacktrace(new IOException("StackTrace Test"));
-    logger.warn("DU N***ER HURENSOHN");
   }
 
   public void log( LoggingStrategy strategy, Object... content ) {
