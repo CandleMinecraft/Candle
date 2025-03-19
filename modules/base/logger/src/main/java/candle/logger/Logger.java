@@ -42,8 +42,8 @@ public class Logger {
   }
 
   public void log( LoggingStrategy strategy, Object... content ) {
-    String FORMAT_NORMAL = "[%timestamp] - %name - %log_level - %content";
-    String FORMAT_DEBUG = "[%timestamp] - %name - %log_level - %package:%line - %content";
+    String FORMAT_NORMAL = "[%timestamp] - %log_level - %name - %content";
+    String FORMAT_DEBUG = "[%timestamp] - %log_level - %name - %package:%line - %content";
     strategy.log(
             this.name,
             debug ? FORMAT_DEBUG : FORMAT_NORMAL,
