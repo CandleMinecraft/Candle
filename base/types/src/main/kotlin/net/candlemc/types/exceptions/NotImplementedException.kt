@@ -1,3 +1,3 @@
-package net.candlemc.types.ex
+package net.candlemc.types.exceptions
 
 class NotImplementedException(message: String?) : RuntimeException(message)

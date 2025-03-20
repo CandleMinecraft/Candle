@@ -6,18 +6,20 @@ import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
 
+@Suppress("UNCHECKED_CAST")
 abstract class AbstractDataCodec(registryName: Identifier) : Registry<TypeCodec<*>?>(registryName) {
+
     @Throws(IOException::class)
-    fun <T> writeType(out: OutputStream?, identifier: TypeIdentifier<T>, value: T) {
+    fun <T> writeType(outputStream: OutputStream, identifier: TypeIdentifier<T>, value: T) {
         val codec: TypeCodec<T> = get(identifier) as TypeCodec<T>?
             ?: throw IOException("No codec registered with identifier: $identifier")
-        codec.write(out, value, this)
+        codec.write(outputStream, value, this)
     }
 
     @Throws(IOException::class)
-    fun <T> readType(`in`: InputStream?, identifier: TypeIdentifier<T>): T {
+    fun <T> readType(inputStream: InputStream, identifier: TypeIdentifier<T>): T {
         val codec: TypeCodec<T> = get(identifier) as TypeCodec<T>?
             ?: throw IOException("No codec registered with identifier: $identifier")
-        return codec.read(`in`, this)
+        return codec.read(inputStream, this)
     }
 }

@@ -10,6 +10,8 @@ repositories {
 }
 
 dependencies {
+    implementation(project(":base:types"))
+
     testImplementation(kotlin("test"))
 }
 

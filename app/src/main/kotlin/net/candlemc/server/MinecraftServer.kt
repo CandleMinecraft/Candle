@@ -47,7 +47,7 @@ class MinecraftServer {
     }
 
     companion object {
-        @kotlin.jvm.JvmStatic
+        @JvmStatic
         fun main(args: Array<String>) {
             val server = MinecraftServer()
             server.start(25565)

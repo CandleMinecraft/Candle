@@ -1,13 +1,8 @@
 package net.candlemc.protocol.codec
 
-import net.candlemc.types.ex.NotImplementedException
+import net.candlemc.types.exceptions.NotImplementedException
 import net.candlemc.types.resource.Identifier
-import java.io.ByteArrayOutputStream
-import java.io.DataInputStream
-import java.io.DataOutputStream
-import java.io.IOException
-import java.io.InputStream
-import java.io.OutputStream
+import java.io.*
 import java.util.*
 
 class UUIDCodec : TypeCodec<UUID>() {

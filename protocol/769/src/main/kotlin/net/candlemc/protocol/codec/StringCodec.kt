@@ -1,5 +1,6 @@
 package net.candlemc.protocol.codec
 
+import net.candlemc.protocol.Packet
 import net.candlemc.types.resource.Identifier
 import java.io.IOException
 import java.io.InputStream
@@ -15,7 +16,7 @@ class StringCodec : TypeCodec<String>() {
 
     @Throws(IOException::class)
     override fun read(inputStream: InputStream, dataCodec: AbstractDataCodec): String {
-        val length: Int = dataCodec.readType(inputStream, VarIntCodec.identifier()).value()
+        val length: Int = dataCodec.readType(inputStream, VarIntCodec.identifier())
         val bytes = ByteArray(length)
         var readBytes = 0
         while (readBytes < length) {
@@ -30,21 +31,21 @@ class StringCodec : TypeCodec<String>() {
 
     @Throws(IOException::class)
     override fun write(outputStream: OutputStream, value: String, dataCodec: AbstractDataCodec) {
-        val bytes = value.toByteArray(StandardCharsets.UTF_8)
-        // Pass the Kotlin Int directly instead of Int32
+        val bytes: ByteArray = value.toByteArray(StandardCharsets.UTF_8)
         dataCodec.writeType(outputStream, VarIntCodec.identifier(), bytes.size)
         outputStream.write(bytes)
     }
 
-    override fun namespacedIdentifier(): Identifier? {
+    override fun namespacedIdentifier(): Identifier {
         return identifier()
     }
 
     companion object {
         private var IDENTIFIER: TypeIdentifier<String>? = null
 
-        fun identifier(): TypeIdentifier<String>? {
-            return IDENTIFIER
+        fun identifier(): TypeIdentifier<String> {
+            if (IDENTIFIER == null) throw IllegalStateException("StringCodec was not initialized")
+            return IDENTIFIER!!
         }
     }
 }

@@ -8,7 +8,7 @@ import java.io.OutputStream
 class VarIntCodec : TypeCodec<Int>() {
     init {
         if (IDENTIFIER == null) {
-            IDENTIFIER = identifier("minecraft", "string")
+            IDENTIFIER = identifier("minecraft", "var_int")
         }
     }
 
@@ -48,5 +48,10 @@ class VarIntCodec : TypeCodec<Int>() {
 
     companion object {
         private var IDENTIFIER: TypeIdentifier<Int>? = null
+
+        fun identifier(): TypeIdentifier<Int> {
+            if (IDENTIFIER == null) throw IllegalStateException("VarIntCodec was not initialized")
+            return IDENTIFIER!!
+        }
     }
 }

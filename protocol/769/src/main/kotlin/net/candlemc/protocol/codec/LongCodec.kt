@@ -1,11 +1,7 @@
 package net.candlemc.protocol.codec
 
 import net.candlemc.types.resource.Identifier
-import java.io.DataInputStream
-import java.io.DataOutputStream
-import java.io.IOException
-import java.io.InputStream
-import java.io.OutputStream
+import java.io.*
 
 class LongCodec : TypeCodec<Long>() {
     init {
@@ -26,11 +22,15 @@ class LongCodec : TypeCodec<Long>() {
         dataOut.writeLong(value)
     }
 
-    override fun namespacedIdentifier(): Identifier? {
-        return null
+    override fun namespacedIdentifier(): Identifier {
+        return IDENTIFIER!!
     }
 
     companion object {
         private var IDENTIFIER: TypeIdentifier<Long>? = null
+
+        fun identifier(): TypeIdentifier<Long>? {
+            return IDENTIFIER
+        }
     }
 }

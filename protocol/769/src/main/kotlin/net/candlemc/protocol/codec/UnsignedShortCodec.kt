@@ -1,6 +1,7 @@
 package net.candlemc.protocol.codec
 
-import net.candlemc.types.ex.NotImplementedException
+import net.candlemc.protocol.codec.VarIntCodec.Companion
+import net.candlemc.types.exceptions.NotImplementedException
 import net.candlemc.types.resource.Identifier
 import java.io.IOException
 import java.io.InputStream
@@ -36,5 +37,10 @@ class UnsignedShortCodec : TypeCodec<UShort>() {
 
     companion object {
         private var IDENTIFIER: TypeIdentifier<UShort>? = null
+
+        fun identifier(): TypeIdentifier<UShort> {
+            if (IDENTIFIER == null) throw IllegalStateException("UShortCodec was not initialized")
+            return IDENTIFIER!!
+        }
     }
 }
