@@ -1,7 +1,7 @@
 # 🕯️ CandleMC - Fast. Lightweight. Flexible.
 
 *Engine-first design for speed, simplicity & innovation*  
-🚧 **Experimental Pre-Alpha** · Mono Repository · **1% Complete** 🚧  
+🚧 **Experimental Pre-Alpha** · Mono Repository · **1% Complete** 🚧
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 ![Java](https://img.shields.io/badge/Java-21%2B-orange?logo=openjdk)
@@ -12,28 +12,34 @@
 
 ---
 
-## 🚩 Why We're Building  
-*Two developers fed up with server bloat:*  
-- 📉 **Rage against RAM waste** - 8GB for 10 players? We'll fix this  
-- 🧩 **API revolution** - 10 lines > 100 lines for basic features *(goal, not reality yet)*  
-- 🏗️ **Nuclear-grade core** - Modular design over legacy spaghetti *(work in progress)*  
+## 🚩 Why We're Building
+
+*Two developers fed up with server bloat:*
+
+- 📉 **Rage against RAM waste** - 8GB for 10 players? We'll fix this
+- 🧩 **API revolution** - 10 lines > 100 lines for basic features *(goal, not reality yet)*
+- 🏗️ **Nuclear-grade core** - Modular design over legacy spaghetti *(work in progress)*
 
 ---
 
-## 🔥 Design Goals *(Not Features!)*  
-### 🚀 Speed Ambitions  
-- *Planned:* Lock-free chunk/entity systems  
-- *Target:* Sub-millisecond event handling  
-- *Dream:* Async pipelines for I/O madness  
+## 🔥 Design Goals *(Not Features!)*
 
-### 🧠 Simplicity Vision  
-- Hot-reload plugins without restart  
-- Zero-boilerplate configuration  
-- Kotlin DSL for Plugin API and more! 
+### 🚀 Speed Ambitions
+
+- *Planned:* Lock-free chunk/entity systems
+- *Target:* Sub-millisecond event handling
+- *Dream:* Async pipelines for I/O madness
+
+### 🧠 Simplicity Vision
+
+- Hot-reload plugins without restart
+- Zero-boilerplate configuration
+- Kotlin DSL for Plugin API and more!
 
 ---
 
-## 🗂️ Current State  
+## 🗂️ Current State
+
 ```
 candle/  
 ├── base/              # ⚙️ Engine scaffolding (WIP)
@@ -44,23 +50,27 @@ candle/
 
 ---
 
-## 👷 **We Need Architects!**  
-**Help us build from atoms:**  
-- `Java 21+` Wizards → Core systems design  
-- Protocol Alchemists → Version compatibility R&D  
-- Doc Pioneers → Create first tutorials  
+## 👷 **We Need Architects!**
+
+**Help us build from atoms:**
+
+- `Java 21+` Wizards → Core systems design
+- Protocol Alchemists → Version compatibility R&D
+- Doc Pioneers → Create first tutorials
 
 **Every action counts:**  
-⭐ Star → Signal interest • 💬 [Discord](https://discord.gg/invite/a8Sj3dUcB4) → Brainstorm • 🐛 Issues → Track gaps  
+⭐ Star → Signal interest • 💬 [Discord](https://discord.gg/invite/a8Sj3dUcB4) → Brainstorm • 🐛 Issues → Track gaps
 
 ---
 
-## 🚧 Quick Warning  
+## 🚧 Quick Warning
+
 ```bash
 git clone https://github.com/CandleMinecraft/Candle.git  # 🪣 Empty bucket, not water
 cd Candle
 ./mvnw clean install  # ✅ Compiles air (for now)
 ```  
+
 *No server binary yet – we're coding the first bricks!*
 
 ---
@@ -75,5 +85,6 @@ cd Candle
 ---
 
 ## 📜 License
+
 Open-source under [MIT](LICENSE).  
 *Protocol work references [Minecraft Wiki](https://minecraft.wiki/w/Java_Edition_protocol).*
