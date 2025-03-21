@@ -2,6 +2,7 @@ package net.candlemc.protocol
 
 import net.candlemc.io.StagedOutputStream
 import net.candlemc.protocol.codec.MinecraftDataCodec769
+import net.candlemc.protocol.codec.VarIntCodec
 import net.candlemc.protocol.handshake.client.HandshakePacket
 import java.io.IOException
 import java.io.InputStream
@@ -17,6 +18,8 @@ class Client(private val socket: Socket) : Runnable {
         try {
             inputStream = socket.getInputStream()
             outputStream = StagedOutputStream.withUnderlying(socket.getOutputStream())
+            MinecraftDataCodec769.readType(inputStream!!, VarIntCodec.identifier())
+            MinecraftDataCodec769.readType(inputStream!!, VarIntCodec.identifier())
             val handshake = HandshakePacket.deserializeHandshakePacket(inputStream!!, MinecraftDataCodec769)
             println("Handshake from=$clientAddress, protocol=${handshake.protocolVersion}, nextState=${handshake.nextState}")
         } catch (e: IOException) {

@@ -63,7 +63,7 @@ open class Packet769(
                 ?: throw IllegalStateException("No registered packet for key $packetKey")
 
             // Use the prototype’s deserialization method to create a new instance.
-            return prototype.deserialize(packetData, dataCodec)
+            return prototype.apply(packetId, length, packetData, dataCodec)
         }
     }
 }

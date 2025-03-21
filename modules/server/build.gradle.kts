@@ -1,5 +1,5 @@
 plugins {
-    id("buildsrc.convention.kotlin-jvm")
+    kotlin("jvm")
     application
 }
 

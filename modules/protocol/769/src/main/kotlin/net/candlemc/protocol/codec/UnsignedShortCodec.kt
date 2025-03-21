@@ -28,7 +28,14 @@ class UnsignedShortCodec : TypeCodec<UShort>() {
 
     @Throws(IOException::class, NotImplementedException::class)
     override fun write(outputStream: OutputStream, value: UShort, dataCodec: AbstractDataCodec) {
-        throw NotImplementedException("This functionality is not yet implemented!")
+        // Convert the UShort value to an Int for bitwise operations.
+        val intValue = value.toInt()
+        // Extract the high and low bytes.
+        val hi = (intValue shr 8) and 0xFF
+        val lo = intValue and 0xFF
+        // Write the two bytes to the output stream.
+        outputStream.write(hi)
+        outputStream.write(lo)
     }
 
     override fun namespacedIdentifier(): Identifier {
