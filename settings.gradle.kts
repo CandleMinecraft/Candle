@@ -19,18 +19,12 @@ plugins {
 // Include the `app` and `utils` subprojects in the build.
 // If there are changes in only one of the projects, Gradle will rebuild only the one that has changed.
 // Learn more about structuring projects with Gradle - https://docs.gradle.org/8.7/userguide/multi_project_builds.html
-include(":app")
-include(":utils")
 
 rootProject.name = "Candle"
-include("base:event")
-findProject(":base:event")?.name = "event"
-include("base:logger")
-findProject(":base:logger")?.name = "logger"
-include("base:types")
-findProject(":base:types")?.name = "types"
-include("installer")
-include("protocol:base")
-findProject(":protocol:base")?.name = "base"
-include("protocol:769")
-findProject(":protocol:769")?.name = "769"
+include(":modules:base:event")
+include(":modules:base:logger")
+include(":modules:base:types")
+include(":modules:installer")
+include(":modules:protocol:base")
+include(":modules:protocol:769")
+include(":modules:server")
