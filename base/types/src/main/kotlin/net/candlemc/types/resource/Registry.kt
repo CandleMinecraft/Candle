@@ -7,7 +7,7 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.function.Supplier
 
 open class Registry<T>(private val registryIdentifier: Identifier) : NamespacedObject {
-    private val registry: MutableMap<Identifier, T> = ConcurrentHashMap<Identifier, T>()
+    protected val registry: MutableMap<Identifier, T> = ConcurrentHashMap<Identifier, T>()
     private val saveFile = File("./.data/@candle/registries", "$registryIdentifier.dat")
 
     init {
@@ -81,7 +81,7 @@ open class Registry<T>(private val registryIdentifier: Identifier) : NamespacedO
     }
 
     // Retrieves an entry by its ResourceLocation.
-    fun get(id: Identifier): T? {
+    open fun get(id: Identifier): T? {
         return registry[id]
     }
 

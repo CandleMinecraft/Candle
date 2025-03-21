@@ -53,5 +53,15 @@ class VarIntCodec : TypeCodec<Int>() {
             if (IDENTIFIER == null) throw IllegalStateException("VarIntCodec was not initialized")
             return IDENTIFIER!!
         }
+
+        fun sizeOf(value: Int): Int {
+            var intValue = value
+            var size = 0
+            do {
+                size++
+                intValue = intValue ushr 7
+            } while (intValue != 0)
+            return size
+        }
     }
 }

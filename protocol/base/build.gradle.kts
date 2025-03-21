@@ -11,6 +11,8 @@ repositories {
 
 dependencies {
     implementation(project(":base:types"))
+    implementation(project(":base:event"))
+    implementation(project(":base:logger"))
 
     testImplementation(kotlin("test"))
 }

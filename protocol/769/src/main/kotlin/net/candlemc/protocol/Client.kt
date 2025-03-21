@@ -1,5 +1,6 @@
 package net.candlemc.protocol
 
+import net.candlemc.io.StagedOutputStream
 import net.candlemc.protocol.handshake.client.HandshakePacket
 import java.io.IOException
 import java.io.InputStream
@@ -14,7 +15,7 @@ class Client(private val socket: Socket) : Runnable {
         val clientAddress = socket.inetAddress.hostAddress
         try {
             inputStream = socket.getInputStream()
-            outputStream = socket.getOutputStream()
+            outputStream = StagedOutputStream.withUnderlying(socket.getOutputStream())
             val handshake = HandshakePacket(inputStream)
             System.out.printf(
                 "Handshake from: %s protocol=%s, nextState=%s%n", clientAddress, handshake.getProtocolVersion(),

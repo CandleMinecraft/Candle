@@ -1,6 +1,5 @@
 package net.candlemc.protocol.codec
 
-import net.candlemc.protocol.Packet
 import net.candlemc.types.resource.Identifier
 import java.io.IOException
 import java.io.InputStream
