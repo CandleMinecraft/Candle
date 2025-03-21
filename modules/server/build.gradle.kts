@@ -4,12 +4,12 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":modules:base:event"))
-    implementation(project(":modules:base:logger"))
-    implementation(project(":modules:base:types"))
+    implementation(project(":base:event"))
+    implementation(project(":base:logger"))
+    implementation(project(":base:types"))
 
-    implementation(project(":modules:protocol:base"))
-    implementation(project(":modules:protocol:769"))
+    implementation(project(":protocol:base"))
+    implementation(project(":protocol:769"))
 
     testImplementation(kotlin("test"))
 }

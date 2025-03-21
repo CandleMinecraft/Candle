@@ -10,9 +10,9 @@ repositories {
 }
 
 dependencies {
-    implementation(project(":modules:base:types"))
-    implementation(project(":modules:base:event"))
-    implementation(project(":modules:base:logger"))
+    implementation(project(":base:types"))
+    implementation(project(":base:event"))
+    implementation(project(":base:logger"))
 
     testImplementation(kotlin("test"))
 }

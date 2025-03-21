@@ -10,7 +10,7 @@ repositories {
 }
 
 dependencies {
-    implementation(project(":modules:base:event"))
+    implementation(project(":base:event"))
 
     testImplementation(kotlin("test"))
 }

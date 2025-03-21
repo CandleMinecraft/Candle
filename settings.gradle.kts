@@ -21,10 +21,14 @@ plugins {
 // Learn more about structuring projects with Gradle - https://docs.gradle.org/8.7/userguide/multi_project_builds.html
 
 rootProject.name = "Candle"
-include(":modules:base:event")
-include(":modules:base:logger")
-include(":modules:base:types")
-include(":modules:installer")
-include(":modules:protocol:base")
-include(":modules:protocol:769")
-include(":modules:server")
+file("modules").walk().filter { dir ->
+    dir.isDirectory &&
+            (dir.resolve("build.gradle.kts").exists() || dir.resolve("build.gradle").exists())
+}.forEach { moduleDir ->
+    // Compute the relative path from the "modules" folder and normalize file separators
+    val relativePath = moduleDir.relativeTo(rootDir.resolve("modules")).invariantSeparatorsPath
+    // Convert the relative path to a Gradle project path (using ':' as separators)
+    val gradleProjectPath = relativePath.split("/").joinToString(separator = ":", prefix = ":")
+    include(gradleProjectPath)
+    project(gradleProjectPath).projectDir = moduleDir
+}
