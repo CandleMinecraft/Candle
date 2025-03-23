@@ -19,6 +19,7 @@ class Color(val hex: String?, val chat: String, val motd: String) {
         val RED: Color = Color("#FF5555", "§c", "\\u00A7c")
         val LIGHT_PURPLE: Color = Color("#FF55FF", "§d", "\\u00A7d")
         val YELLOW: Color = Color("#FFFF55", "§e", "\\u00A7e")
+        val MINECOIN_GOLD: Color = Color("#DDD605, "§g", "\\u00A7g")
         val OBFUSCATED: Color = Color(null, "§k", "\\u00A7k")
         val BOLD: Color = Color(null, "§l", "\\u00A7l")
         val STRIKETHROUGH: Color = Color(null, "§m", "\\u00A7m")
