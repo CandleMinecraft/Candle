@@ -1,6 +1,3 @@
-package net.candlemc.mvt
-
-
 class Color(val hex: String?, val chat: String, val motd: String) {
     companion object {
         val WHITE: Color = Color("#FFFFFF", "§f", "\\u00A7f")
@@ -25,6 +22,15 @@ class Color(val hex: String?, val chat: String, val motd: String) {
         val UNDERLINE: Color = Color(null, "§n", "\\u00A7n")
         val ITALIC: Color = Color(null, "§o", "\\u00A7o")
         val RESET: Color = Color(null, "§r", "\\u00A7r")
-    }
 
+        val values = listOf(
+            WHITE, BLACK, DARK_BLUE, DARK_GREEN, DARK_AQUA, DARK_RED, DARK_PURPLE, GOLD,
+            GRAY, DARK_GRAY, BLUE, GREEN, AQUA, RED, LIGHT_PURPLE, YELLOW,
+            OBFUSCATED, BOLD, STRIKETHROUGH, UNDERLINE, ITALIC, RESET
+        )
+
+        fun from(value: String?): Color? = values.find {
+            it.hex == value || it.chat == value || it.motd == value
+        }
+    }
 }
