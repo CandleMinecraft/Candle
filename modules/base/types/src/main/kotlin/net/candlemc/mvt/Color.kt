@@ -30,7 +30,7 @@ class Color(val hex: String?, val chat: String, val motd: String) {
         )
 
         fun from(value: String?): Color? = values.find {
-            it.hex == value || it.chat == value || it.motd == value
+            it.hex == value || it.chat == value.replace("&", "§") || it.motd == value
         }
     }
 }
