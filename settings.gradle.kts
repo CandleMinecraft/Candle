@@ -32,3 +32,5 @@ file("modules").walk().filter { dir ->
     include(gradleProjectPath)
     project(gradleProjectPath).projectDir = moduleDir
 }
+include("modules:base:utils")
+findProject(":modules:base:utils")?.name = "utils"
